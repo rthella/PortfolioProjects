@@ -5,7 +5,7 @@ FROM [Portfolio Project].dbo.CovidDeaths
 WHERE continent IS NOT NULL
 ORDER BY 3,4
 
---select data that we are going to be using
+--Select data that to be used
 SELECT location, date, total_cases, new_cases, total_deaths, population
 FROM [Portfolio Project].dbo.CovidDeaths
 WHERE continent IS NOT NULL
@@ -49,8 +49,8 @@ ORDER BY total_death_count DESC
 
 --Global Numbers
 SELECT SUM(new_cases) AS total_cases, 
-	   SUM(CAST(new_deaths AS INT)) AS total_deaths, 
-	   SUM(CAST(new_deaths AS INT))/SUM(new_cases)*100 AS death_percent
+       SUM(CAST(new_deaths AS INT)) AS total_deaths, 
+       SUM(CAST(new_deaths AS INT))/SUM(new_cases)*100 AS death_percent
 FROM [Portfolio Project].dbo.CovidDeaths
 WHERE continent IS NOT NULL
 ORDER BY 1,2
@@ -63,7 +63,7 @@ ORDER BY 3,4
 
 --Looking at Total Population vs Vaccinations
 SELECT cd.continent, cd.location, cd.date, cd.population, cv.new_vaccinations, 
-	   SUM(CONVERT(int, cv.new_vaccinations)) OVER (PARTITION BY cd.location ORDER BY cd.location, cd.date) AS rolling_people_vaccinated
+       SUM(CONVERT(int, cv.new_vaccinations)) OVER (PARTITION BY cd.location ORDER BY cd.location, cd.date) AS rolling_people_vaccinated
 FROM [Portfolio Project]..CovidDeaths cd
 JOIN [Portfolio Project]..CovidVaccinations cv
 ON cd.location = cv.location AND cd.date = cv.date
@@ -75,7 +75,7 @@ WITH PopvsVac (continent, location, date, population, new_vaccinations, rolling_
 AS
 (
 SELECT cd.continent, cd.location, cd.date, cd.population, cv.new_vaccinations, 
-	   SUM(CONVERT(int, cv.new_vaccinations)) OVER (PARTITION BY cd.location ORDER BY cd.location, cd.date) AS rolling_people_vaccinated
+       SUM(CONVERT(int, cv.new_vaccinations)) OVER (PARTITION BY cd.location ORDER BY cd.location, cd.date) AS rolling_people_vaccinated
 FROM [Portfolio Project]..CovidDeaths cd
 JOIN [Portfolio Project]..CovidVaccinations cv
 ON cd.location = cv.location AND cd.date = cv.date
@@ -87,19 +87,19 @@ FROM PopvsVac
 --Using TEMP TABLE 
 --Highest percent of people vaccinated
 
---DROP Table if exists #HighestPercentVaccinated
+DROP TABLE if exists #HighestPercentVaccinated
 CREATE TABLE #HighestPercentVaccinated
 (
-continent				  nvarchar(255), 
-location				  nvarchar(255), 
-date					  datetime, 
-population				  numeric, 
-new_vaccinations		  numeric, 
+continent nvarchar(255), 
+location nvarchar(255), 
+date datetime, 
+population numeric, 
+new_vaccinations numeric, 
 rolling_people_vaccinated numeric
 )
 INSERT INTO #HighestPercentVaccinated
 SELECT cd.continent, cd.location, cd.date, cd.population, cv.new_vaccinations, 
-	   SUM(CONVERT(int, cv.new_vaccinations)) OVER (PARTITION BY cd.location ORDER BY cd.location, cd.date) AS rolling_people_vaccinated
+       SUM(CONVERT(int, cv.new_vaccinations)) OVER (PARTITION BY cd.location ORDER BY cd.location, cd.date) AS rolling_people_vaccinated
 FROM [Portfolio Project]..CovidDeaths cd
 JOIN [Portfolio Project]..CovidVaccinations cv
 ON cd.location = cv.location AND cd.date = cv.date
@@ -111,10 +111,10 @@ FROM #HighestPercentVaccinated
 --Creating View to store data for later visualizations
 Create VIEW HighestPercentVaccinated AS
 SELECT cd.continent, cd.location, cd.date, cd.population, cv.new_vaccinations, 
-	   SUM(CONVERT(int, cv.new_vaccinations)) OVER (PARTITION BY cd.location ORDER BY cd.location, cd.date) AS rolling_people_vaccinated
+       SUM(CONVERT(int, cv.new_vaccinations)) OVER (PARTITION BY cd.location ORDER BY cd.location, cd.date) AS rolling_people_vaccinated
 FROM [Portfolio Project]..CovidDeaths cd
 JOIN [Portfolio Project]..CovidVaccinations cv
-	 ON cd.location = cv.location AND cd.date = cv.date
+ON cd.location = cv.location AND cd.date = cv.date
 WHERE cd.continent IS NOT NULL
 
 --Showing HighestPercentVaccinated view
